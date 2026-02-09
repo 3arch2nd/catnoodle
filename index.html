@@ -471,6 +471,9 @@ let globalZIndex = 100;
 let hasRotated = false; 
 let currentProblemIdx = -1;
 
+// 🎲 [추가] 셔플 로직을 위한 전역 변수
+let puzzleDeck = [];
+
 const boardEl = document.getElementById('board');
 const trayEl = document.getElementById('tray');
 const gameUnitEl = document.getElementById('game-unit');
@@ -648,27 +651,30 @@ function loadNewGameLogic() {
     const bOverlay = document.getElementById('board-overlay');
     if(bOverlay) bOverlay.style.display = 'none';
     
-    let newIdx;
-    if (typeof SOLUTION_DB !== 'undefined' && SOLUTION_DB.length > 0) {
-        // ✨ [수정됨] 무작위 대신 순차적으로 증가 (검증용)
-        newIdx = currentProblemIdx + 1;
-        
-        // 180번(마지막)을 넘어가면 다시 처음(0번)으로 돌아감
-        if (newIdx >= SOLUTION_DB.length) {
-            newIdx = 0;
-        }
-    } else {
-        newIdx = 0;
-    }
-    currentProblemIdx = newIdx;
+    let newIdx = 0;
 
-    if(typeof SOLUTION_DB !== 'undefined') {
-        // ✨ 현재 풀고 있는 문제 번호를 콘솔에 큼지막하게 출력
-        const currentPuzzle = SOLUTION_DB[newIdx];
-        if (currentPuzzle.id) {
-            console.log(`%c🧩 현재 플레이 중인 퍼즐: #${currentPuzzle.id}`, "background: #2d3436; color: #badc58; font-size: 16px; font-weight: bold; padding: 6px; border-radius: 4px;");
+    if (typeof SOLUTION_DB !== 'undefined' && SOLUTION_DB.length > 0) {
+        // 1. 덱이 비어있거나 초기화되지 않았다면 새로 만듭니다. (All Reset)
+        if (puzzleDeck.length === 0) {
+            console.log("🔀 모든 문제를 풀었습니다! 카드를 다시 섞습니다...");
+            // 0부터 DB 길이-1 까지의 숫자를 채워넣음
+            puzzleDeck = Array.from({length: SOLUTION_DB.length}, (_, i) => i);
+        }
+
+        // 2. 덱에서 무작위로 카드 한 장을 뽑습니다. (Pop Random)
+        const randomIndex = Math.floor(Math.random() * puzzleDeck.length);
+        newIdx = puzzleDeck[randomIndex];
+        
+        // 3. 뽑은 카드는 덱에서 제거합니다. (중복 방지 핵심)
+        puzzleDeck.splice(randomIndex, 1);
+
+        // 현재 인덱스 업데이트 (치트키 등 호환성 유지)
+        currentProblemIdx = newIdx;
+
+        if (SOLUTION_DB[newIdx].id) {
+            console.log(`%c🎲 랜덤 출제: #${SOLUTION_DB[newIdx].id} (남은 문제: ${puzzleDeck.length}개)`, "background: #2d3436; color: #badc58; font-size: 16px; font-weight: bold; padding: 6px; border-radius: 4px;");
         } else {
-            console.log(`🧩 현재 퍼즐 Index: ${newIdx} (ID 정보 없음)`);
+            console.log(`🎲 랜덤 출제 Index: ${newIdx} (남은 문제: ${puzzleDeck.length}개)`);
         }
 
         answerKey = JSON.parse(JSON.stringify(SOLUTION_DB[newIdx]));
@@ -689,9 +695,9 @@ function loadNewGameLogic() {
         randomizeTrayPositions();
         renderPieces();
     }, 50);
-    showMessage("새로운 게임 시작!");
+    
+    showMessage("새로운 게임 시작!"); 
 }
-
 function extractPiecesFromBoard() {
     pieces = [];
     for(let id=0; id<12; id++) {
