@@ -769,20 +769,16 @@ function applyDifficulty() {
 
     if (val === 'half') {
         // 🐱 [반냥이 모드] 
-        // 조각들의 x좌표(열 위치)를 기준으로 정렬하여, 가장 왼쪽에 있는 6개를 찾습니다.
-        // pieces 배열에는 현재 정답 상태의 좌표(p.x)가 들어있으므로 이를 활용합니다.
-        
-        // 1. 인덱스와 x좌표를 매핑
         let piecePositions = pieces.map((p, index) => ({ index: index, x: p.x }));
         
-        // 2. x좌표 기준 오름차순 정렬 (왼쪽 -> 오른쪽)
+        // x좌표 기준 오름차순 정렬 (왼쪽 -> 오른쪽)
         piecePositions.sort((a, b) => a.x - b.x);
         
-        // 3. 앞에서부터 6개만 잠금 리스트에 추가
+        // 앞에서부터 6개만 잠금 리스트에 추가
         lockedIndices = piecePositions.slice(0, 6).map(obj => obj.index);
         
-        // 4. 문구 업데이트 (모달창용)
-        document.getElementById('gen-count-text').innerText = "반냥이";
+        // ❌ 삭제됨: document.getElementById('gen-count-text').innerText = "반냥이"; 
+        // (이젠 모달을 띄울 때 문구를 만들기 때문에 여기서 업데이트할 필요가 없습니다!)
     } else {
         // [일반 모드] 무작위 N개 잠금
         const keepCount = parseInt(val);
@@ -791,8 +787,7 @@ function applyDifficulty() {
             lockedIndices.push(allIndices[r]);
             allIndices.splice(r, 1);
         }
-        // 문구 업데이트
-        document.getElementById('gen-count-text').innerText = `${keepCount}개`;
+        // ❌ 삭제됨: document.getElementById('gen-count-text').innerText = ...;
     }
 
     pieces.forEach((p, idx) => {
