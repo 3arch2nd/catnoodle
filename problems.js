@@ -648,7 +648,7 @@ const RAW_PUZZLES_TEXT = [
         "KKFEECCCCAA"
     ]
     // #81
-    //[
+    // [
         "JJJJEEELAAC",
         "IIIEEDLLLAC",
         "IBIHHDDLGAC", // Length fixed
@@ -1449,7 +1449,7 @@ const RAW_PUZZLES_TEXT = [
         "HHIILEEJGKK",
         "AHHACCCJGKK",
         "AAACCCCJGGG"
-    ]//
+    ] //
 ];
 
 // --- ⚙️ 시스템 엔진 (업그레이드 버전) ---
