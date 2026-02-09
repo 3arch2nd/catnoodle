@@ -347,10 +347,10 @@
 </header>
 
 <div class="controls">
-    <select id="difficulty">
+    <select id="difficulty" onchange="saveDifficulty()">
         <option value="2">2개</option>
-        <option value="4" selected>4개</option>
-        <option value="6">6개</option>
+        <option value="4">4개</option>
+        <option value="half">반냥이</option>
     </select>
     <button class="game-btn btn-gen" onclick="confirmNewGame()">생성</button>
     <button class="game-btn btn-reset" onclick="confirmReset()">초기화</button>
@@ -521,6 +521,33 @@ function executeNewGame() {
     loadNewGameLogic();
 }
 
+// 💾 난이도 저장/불러오기 기능
+function saveDifficulty() {
+    const val = document.getElementById('difficulty').value;
+    localStorage.setItem('catnoodle_difficulty', val);
+    
+    // 모달 창 문구 실시간 업데이트
+    const text = val === 'half' ? "반냥이" : `${val}개`;
+    document.getElementById('gen-count-text').innerText = text;
+}
+
+function loadDifficultySetting() {
+    const saved = localStorage.getItem('catnoodle_difficulty');
+    if (saved) {
+        // 저장된 값이 있다면 그 값으로 선택 (2, 4, half 중 하나)
+        const select = document.getElementById('difficulty');
+        if(select.querySelector(`option[value="${saved}"]`)){
+            select.value = saved;
+        }
+    }
+}
+
+// 초기화 순서에 로드 함수 추가
+window.addEventListener('resize', initLayout);
+loadDifficultySetting(); // 💡 게임 시작 전 설정 불러오기
+initLayout();
+loadNewGame();
+    
 function initLayout() {
     const headerH = document.querySelector('header').offsetHeight;
     const controlsH = document.querySelector('.controls').offsetHeight;
@@ -716,14 +743,43 @@ function randomizeTrayPositions() {
 }
 
 function applyDifficulty() {
-    const keepCount = parseInt(document.getElementById('difficulty').value);
+    const diffSelect = document.getElementById('difficulty');
+    const val = diffSelect.value;
+    
+    // 💾 [저장] 선택한 난이도를 브라우저에 저장
+    localStorage.setItem('catnoodle_difficulty', val);
+
     let allIndices = pieces.map((_, i) => i);
     let lockedIndices = [];
-    for(let i=0; i<keepCount; i++) {
-        let r = Math.floor(Math.random() * allIndices.length);
-        lockedIndices.push(allIndices[r]);
-        allIndices.splice(r, 1);
+
+    if (val === 'half') {
+        // 🐱 [반냥이 모드] 
+        // 조각들의 x좌표(열 위치)를 기준으로 정렬하여, 가장 왼쪽에 있는 6개를 찾습니다.
+        // pieces 배열에는 현재 정답 상태의 좌표(p.x)가 들어있으므로 이를 활용합니다.
+        
+        // 1. 인덱스와 x좌표를 매핑
+        let piecePositions = pieces.map((p, index) => ({ index: index, x: p.x }));
+        
+        // 2. x좌표 기준 오름차순 정렬 (왼쪽 -> 오른쪽)
+        piecePositions.sort((a, b) => a.x - b.x);
+        
+        // 3. 앞에서부터 6개만 잠금 리스트에 추가
+        lockedIndices = piecePositions.slice(0, 6).map(obj => obj.index);
+        
+        // 4. 문구 업데이트 (모달창용)
+        document.getElementById('gen-count-text').innerText = "반냥이";
+    } else {
+        // [일반 모드] 무작위 N개 잠금
+        const keepCount = parseInt(val);
+        for(let i=0; i<keepCount; i++) {
+            let r = Math.floor(Math.random() * allIndices.length);
+            lockedIndices.push(allIndices[r]);
+            allIndices.splice(r, 1);
+        }
+        // 문구 업데이트
+        document.getElementById('gen-count-text').innerText = `${keepCount}개`;
     }
+
     pieces.forEach((p, idx) => {
         if(lockedIndices.includes(idx)) {
             p.isLocked = true;
