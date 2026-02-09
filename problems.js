@@ -646,7 +646,7 @@ const RAW_PUZZLES_TEXT = [
         "DDDDHHLLLAG",
         "KKFFEEELCAG",
         "KKFEECCCCAA"
-    ]
+    ],
     // #81
     /* [
         "JJJJEEELAAC",
