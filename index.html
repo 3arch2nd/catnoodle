@@ -417,9 +417,7 @@
 <div class="modal-overlay" id="genModal" onclick="closeGen()">
     <div class="modal" onclick="event.stopPropagation()">
         <h3>새 게임</h3>
-        <p style="text-align:center; color:#ddd; margin: 20px 0;">
-            <span id="gen-count-text" style="color:var(--reset-btn); font-weight:bold;">4개</span> 고정으로<br>
-            새로운 게임을 만들까요?
+        <p id="gen-message" style="text-align:center; color:#ddd; margin: 20px 0; line-height: 1.6;">
         </p>
         <div class="modal-btn-group">
             <button class="btn-no" onclick="closeGen()">아니오</button>
@@ -487,9 +485,30 @@ function confirmShowAnswer() { document.getElementById('answerModal').style.disp
 function closeAnswer() { document.getElementById('answerModal').style.display = 'none'; }
 function confirmReset() { document.getElementById('resetModal').style.display = 'flex'; }
 function closeReset() { document.getElementById('resetModal').style.display = 'none'; }
+
+// 💬 생성 버튼 클릭 시: 난이도에 따라 안내 문구를 다르게 표시
 function confirmNewGame() { 
-    const count = document.getElementById('difficulty').value;
-    document.getElementById('gen-count-text').innerText = `${count}개`;
+    const val = document.getElementById('difficulty').value;
+    const msgEl = document.getElementById('gen-message');
+    
+    // 스타일 변수 (주황색 강조)
+    const highlightStyle = 'color:var(--reset-btn); font-weight:bold;';
+
+    if (val === 'half') {
+        // 🐱 반냥이 모드 문구
+        msgEl.innerHTML = `
+            <span style="${highlightStyle}">반냥이</span> 모드로<br>
+            6개의 조각을 왼쪽에 배열하여<br>
+            새 게임을 시작할까요?
+        `;
+    } else {
+        // 🧩 일반 모드 (2개/4개) 문구
+        msgEl.innerHTML = `
+            <span style="${highlightStyle}">${val}개</span> 고정으로<br>
+            새로운 게임을 만들까요?
+        `;
+    }
+    
     document.getElementById('genModal').style.display = 'flex'; 
 }
 function closeGen() { document.getElementById('genModal').style.display = 'none'; }
@@ -521,14 +540,10 @@ function executeNewGame() {
     loadNewGameLogic();
 }
 
-// 💾 난이도 저장/불러오기 기능
+// 💾 난이도 저장 (문구 업데이트 로직은 제거하고 저장만 수행)
 function saveDifficulty() {
     const val = document.getElementById('difficulty').value;
     localStorage.setItem('catnoodle_difficulty', val);
-    
-    // 모달 창 문구 실시간 업데이트
-    const text = val === 'half' ? "반냥이" : `${val}개`;
-    document.getElementById('gen-count-text').innerText = text;
 }
 
 function loadDifficultySetting() {
