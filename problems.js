@@ -661,14 +661,14 @@ const RAW_PUZZLES_TEXT = [
         "KKCCCCLHHAG",
         "IICBBLLLHAG",
         "IFFBBDLEEAA",
-        "IIFBDDDEEEE"
+        "IIFBDDDDEEE"
     ],
     // #83
     [
-        "ACCCCOOOBBB",
-        "AAADCOHILBB",
+        "ACCCCIIIBBB",
+        "AAADCIHILBB",
         "GKKDDHHLLLF",
-        "GKKDHHLELFF",
+        "GKKDHHEELFF",
         "GGGDEEEJJJJ"
     ],
     // #84
@@ -683,7 +683,7 @@ const RAW_PUZZLES_TEXT = [
     [
         "CCCCFEEEGGG",
         "CAAAFFLEEHG",
-        "IAIKKLLHHHG",
+        "IAIKKLLLHHG",
         "IIIKKDLHHBB",
         "JJJJDDDDBBB"
     ],
@@ -699,7 +699,7 @@ const RAW_PUZZLES_TEXT = [
     [
         "EJJJJDDDDBB",
         "EFFGGGDLBBB",
-        "EEFKKGLLHHA",
+        "EEFKKGLLLHA",
         "IEIKKGCLHHA",
         "IIICCCCHHAA"
     ],
@@ -707,7 +707,7 @@ const RAW_PUZZLES_TEXT = [
     [
         "FFBBDDDDEEE",
         "JFBBBDLEEAA",
-        "JCCCLLHHAGG",
+        "JCCCCLLLHAG",
         "JKKICILHHAG",
         "JKKIIIHHGGG"
     ],
@@ -715,7 +715,7 @@ const RAW_PUZZLES_TEXT = [
     [
         "GGGAAADDDDJ",
         "BBGALHHDKKJ",
-        "BBGLLHHKKKJ",
+        "BBGLLLHHKKJ",
         "BEEELCIHIFJ",
         "EECCCCIIIFF"
     ],
