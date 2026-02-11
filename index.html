@@ -60,11 +60,24 @@
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
         }
         
-        .btn-help {
-            width: 24px; height: 24px; border-radius: 50%;
-            background: #b2bec3; color: white; border: none; font-weight: bold; font-size: 0.9rem; cursor: pointer;
-            font-family: 'Oswald', sans-serif;
-        }
+/* 👇 기존 .btn-help 스타일에 .btn-qr 스타일을 덮어씌웁니다 */
+.btn-qr {
+    background: #dfe6e9; /* 생성 버튼보다 훨씬 연한 회색 */
+    color: #2d3436;      /* 글자색은 어둡게 (가독성) */
+    width: auto;         /* 동그라미 대신 글자에 맞게 너비 자동 */
+    padding: 0 10px;     /* 좌우 여백 */
+    border-radius: 12px; /* 둥근 사각형 */
+    margin-right: 5px;   /* 물음표 버튼과의 간격 */
+    font-size: 0.8rem;   /* 글자 크기 살짝 작게 */
+}
+
+/* 👇 모달 높이를 화면의 1/3로 고정하는 클래스 추가 */
+.qr-modal-content {
+    height: 33vh; /* 화면 높이의 약 1/3 */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 내용물 간격 균등 배치 */
+}
 
         .controls { 
             flex: 0 0 auto;
@@ -409,6 +422,19 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="qrModal" onclick="closeQR()">
+    <div class="modal qr-modal-content" onclick="event.stopPropagation()">
+        <h3>공유하기</h3>
+        <div style="text-align: center; margin: 10px 0;">
+            <img id="qr-image" src="" alt="QR Code" style="width: 150px; height: 150px; border-radius: 8px;">
+            <p style="font-size: 0.8rem; color: #aaa; margin-top: 10px;">
+                QR 코드를 스캔해<br>접속하세요!
+            </p>
+        </div>
+        <button class="close-btn" onclick="closeQR()">닫기</button>
+    </div>
+</div>
+    
 <div class="modal-overlay" id="resetModal" onclick="closeReset()">
     <div class="modal" onclick="event.stopPropagation()">
         <h3>초기화</h3>
@@ -487,6 +513,22 @@ const trayOverlay = document.getElementById('tray-overlay');
 const boardOverlay = document.getElementById('board-overlay'); 
 const ghostEl = document.getElementById('ghost');
 
+// 🌐 IT 지식: window.location.href는 현재 브라우저의 주소창 내용을 가져옵니다.
+// qrserver.com API를 사용하여 이미지를 실시간으로 생성합니다.
+
+function openQR() {
+    const currentUrl = window.location.href; // 현재 페이지 주소 가져오기
+    // QR 생성 무료 API 호출 (크기 150x150)
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}`;
+    
+    document.getElementById('qr-image').src = qrApiUrl; // 이미지 소스 교체
+    document.getElementById('qrModal').style.display = 'flex'; // 모달 열기
+}
+
+function closeQR() {
+    document.getElementById('qrModal').style.display = 'none';
+}
+    
 // Functions
 function openHelp() { document.getElementById('helpModal').style.display = 'flex'; }
 function closeHelp() { document.getElementById('helpModal').style.display = 'none'; }
@@ -1338,5 +1380,6 @@ window.addEventListener('resize', initLayout);
 initLayout();
 loadNewGame();
 </script>
+
 </body>
 </html>
