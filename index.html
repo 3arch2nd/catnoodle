@@ -858,10 +858,9 @@ function updateTimer() {
     const s = Math.floor((diff % 60000) / 1000);
     const ms = Math.floor((diff % 1000) / 10); // 2자리 밀리초
     
-    // 00:00:00 포맷팅
-// 👇 태그 구조를 그대로 유지하면서 값만 넣도록 수정합니다.
-document.getElementById('best-record').innerHTML = 
-    `<span class="best-txt">${title}</span><span class="best-time">${recordStr}</span>`;
+    // ✅ 중앙 타이머 숫자만 업데이트합니다.
+    document.getElementById('game-timer').innerText = 
+        `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}:${String(ms).padStart(2,'0')}`;
 }
 
 function stopTimer() {
