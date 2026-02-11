@@ -194,6 +194,23 @@ header {
     .best-txt {
         /* 👇 모바일: 오른쪽 벽에 붙어야 하므로 오른쪽 기준 축소 */
         transform-origin: right; 
+
+        @media (max-width: 700px) {
+    /* 👇 1. 도전자(⏱️)와 QR 버튼을 상단에 고정 (중앙 정렬 해제) */
+    .btn-challenger, .btn-qr {
+        top: 25px !important; /* 위에서 25px 지점에 고정 */
+        transform: none !important; /* 세로 중앙 정렬(translateY) 해제 */
+    }
+
+    /* 👇 2. 헤더 전체에 윗부분 패딩을 주어 제목(H1)을 아래로 밀어냄 */
+    header {
+        padding-top: 60px !important; /* 사이드 버튼들과의 간격 확보 */
+        margin-bottom: 15px !important; /* 하단 컨트롤 버튼들과의 여백 */
+    }
+
+    /* 3. 컨트롤 버튼군 위치 미세 조정 */
+    .controls {
+        margin-bottom: 10px;
     }
 }
         
