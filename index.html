@@ -87,37 +87,46 @@ header {
 }
 .btn-challenger:hover { transform: translateY(-50%) scale(1.1); }
 
-/* 🆕 타이머 컨테이너 (PC: 세로 배치) */
+/* 🆕 타이머 컨테이너 (PC) */
 #timer-container {
     position: absolute;
-    left: 70px; /* ⏱️ 버튼 옆 */
+    /* 👇 왼쪽 간격을 줄여서 타이머가 버튼에 더 가깝게 (기존 70px -> 65px) */
+    /* 필요 시 이 숫자를 조금씩 조절해 보세요 */
+    left: 65px; 
     top: 50%;
     transform: translateY(-50%);
     text-align: left;
     
-    /* 👇 PC에서 세로로 쌓이도록 설정 */
-    display: none; /* JS로 제어 (flex로 변경됨) */
+    display: none; 
     flex-direction: column; 
-    gap: 2px; /* 숫자와 기록 사이 간격 좁게 */
+    gap: 2px;
 }
 
-/* 타이머 숫자 디자인 */
+/* 타이머 숫자 디자인 (기존 유지) */
 #game-timer {
     font-family: 'Oswald', sans-serif;
     font-weight: 700;
-    font-size: 1.6rem; /* 크기 약간 키움 */
+    font-size: 1.6rem;
     color: #2d3436;
-    font-variant-numeric: tabular-nums; /* 💡 숫자 너비 고정 (흔들림 방지 필수) */
+    font-variant-numeric: tabular-nums;
     letter-spacing: 0.5px;
-    line-height: 1; /* 줄 간격 타이트하게 */
+    line-height: 1;
+    /* 👇 왼쪽 패딩 제거 (완전한 왼쪽 정렬) */
+    padding-left: 0; 
+    margin-left: 0;
 }
 
 /* BEST 기록 컨테이너 (Flex로 배치) */
 #best-record {
     display: flex;
-    align-items: baseline;   /* 글자 밑라인(Baseline) 기준으로 정렬 */
-    justify-content: flex-start; /* PC: 왼쪽 정렬 */
-    gap: 8px; /* 한글과 숫자 사이의 간격 (장평 축소 감안하여 넉넉히) */
+    align-items: baseline;
+    justify-content: flex-start;
+    /* 👇 오른쪽 간격 축소 (8px -> 4px) */
+    gap: 4px; 
+    
+    /* 👇 타이머와 왼쪽 라인을 정확히 맞추기 위해 미세 조정 */
+    /* 장평 축소(scaleX) 때문에 시각적으로 왼쪽이 비어 보일 수 있어 마진으로 당김 */
+    margin-left: -2px; 
     margin-top: -2px;
 }
 
@@ -125,63 +134,66 @@ header {
 .best-txt {
     font-family: 'Noto Sans KR', sans-serif;
     font-weight: 700;
-    font-size: 0.95rem; /* 숫자보다 살짝 작게 */
+    font-size: 0.95rem;
     color: #636e72;
     
     display: inline-block;
-    transform: scaleX(0.8);  /* 💡 요청하신 장평 80% */
-    transform-origin: right; /* 오른쪽(숫자 쪽)을 기준으로 축소되어 붙음 */
+    transform: scaleX(0.8);
+    /* 👇 PC: 왼쪽 기준으로 축소해야 타이머와 시작점이 맞음 */
+    transform-origin: left; 
     white-space: nowrap;
 }
 
 /* 2. 숫자 텍스트 (Oswald) */
 .best-time {
-    font-family: 'Oswald', sans-serif; /* 💡 타이머와 동일한 폰트 */
+    font-family: 'Oswald', sans-serif;
     font-weight: 700;
     font-size: 1.0rem;
     color: #636e72;
     letter-spacing: 0.5px;
 }
 
-/* 📱 모바일 전용 스타일 (컨테이너 제거 및 양쪽 정렬) */
+/* 📱 모바일 전용 스타일 */
 @media (max-width: 700px) {
     #timer-container {
-        /* 위치: 화면 하단 고정 */
         position: fixed;
         left: 0;
         bottom: 20px;
-        width: 100%; /* 화면 전체 너비 사용 */
+        width: 100%;
         top: auto;
-        transform: none; /* 중앙 정렬 해제 */
+        transform: none;
         
-        /* 💡 컨테이너 스타일(배경) 제거 */
         background: transparent;
         box-shadow: none;
-        padding: 0 30px; /* 양옆 패딩 (화면 끝에서 띄우기) */
+        padding: 0 30px;
         border-radius: 0;
         
-        /* 배치: 양쪽 끝으로 벌리기 */
         flex-direction: row; 
         justify-content: space-between;
-        align-items: flex-end; /* 텍스트 베이스라인 정렬 */
+        /* 👇 아래쪽(바닥) 라인을 기준으로 정렬 */
+        align-items: baseline; 
         z-index: 8000;
-        
-        /* 🚫 터치 방해 금지 (투명한 영역 클릭 시 게임 조각 선택 가능하게) */
         pointer-events: none;
     }
 
     #game-timer {
-        color: #2d3436; /* 🖤 모바일도 검정색 (배경이 밝으므로) */
+        color: #2d3436;
         font-size: 1.6rem;
-        text-shadow: 0 2px 10px rgba(255,255,255,0.8); /* 가독성 확보용 은은한 테두리 */
+        text-shadow: 0 2px 10px rgba(255,255,255,0.8);
+        line-height: 1; /* 높이 계산을 명확하게 */
     }
 
     #best-record {
-        justify-content: flex-end; /* 모바일: 오른쪽 정렬 */
+        justify-content: flex-end;
         margin: 0;
-        margin-bottom: 5px;
         border: none;
         padding: 0;
+        /* 👇 모바일에서는 baseline 정렬이므로 마진 제거 */
+    }
+    
+    .best-txt {
+        /* 👇 모바일: 오른쪽 벽에 붙어야 하므로 오른쪽 기준 축소 */
+        transform-origin: right; 
     }
 }
         
