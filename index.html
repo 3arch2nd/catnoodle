@@ -862,6 +862,7 @@ function updateTimer() {
 // 👇 태그 구조를 그대로 유지하면서 값만 넣도록 수정합니다.
 document.getElementById('best-record').innerHTML = 
     `<span class="best-txt">${title}</span><span class="best-time">${recordStr}</span>`;
+}
 
 function stopTimer() {
     if(timerInterval) {
