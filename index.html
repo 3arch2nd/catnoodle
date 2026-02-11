@@ -545,7 +545,7 @@ header {
 </header>
 
 <div class="controls">
-<select id="difficulty" onchange="handleDifficultyChange()">
+<select id="difficulty">
     <option value="2">2개</option>
     <option value="4">4개</option>
     <option value="half" selected>반냥이</option> 
@@ -860,39 +860,64 @@ function closeAnswer() { document.getElementById('answerModal').style.display = 
 function confirmReset() { document.getElementById('resetModal').style.display = 'flex'; }
 function closeReset() { document.getElementById('resetModal').style.display = 'none'; }
 
+// 🆕 [생성] 버튼 클릭 시 호출되는 함수 (핵심 로직 변경)
 function confirmNewGame() { 
-    const val = document.getElementById('difficulty').value;
-    const msgEl = document.getElementById('gen-message');
+    const selectedVal = document.getElementById('difficulty').value;
     
-    // 스타일 변수 (주황색 강조)
+    // 1. 도전자 모드인데, 난이도를 변경하려고 시도한 경우 -> ⚠️ 경고 모달 띄움
+    if (isChallengerMode && selectedVal !== currentDifficultyMode) {
+        pendingDifficulty = selectedVal; // 변경하려는 값 임시 저장
+        document.getElementById('diffChangeModal').style.display = 'flex';
+        return; // 여기서 중단 (기존 새 게임 모달 안 띄움)
+    }
+
+    // 2. 그 외(일반 모드거나 난이도 변경 없음) -> ✅ 기존 새 게임 로직 진행
+    showGenModal(selectedVal);
+}
+
+
+// 📌 기존 confirmNewGame의 뒷부분을 별도 함수로 분리 (재사용 목적)
+function showGenModal(val) {
+    const msgEl = document.getElementById('gen-message');
     const highlightStyle = 'color:var(--reset-btn); font-weight:bold;';
 
-    // 👇 로직 수정: 'novice' 케이스 추가
     if (val === 'novice') {
-        // 🐣 초보냥이 문구
-        msgEl.innerHTML = `
-            <span style="${highlightStyle}">초보냥이</span> 모드로<br>
-            9개의 조각을 미리 맞추고<br>
-            남은 3개만 풀어볼까요?
-        `;
+        msgEl.innerHTML = `<span style="${highlightStyle}">초보냥이</span> 모드로<br>9개의 조각을 미리 맞추고<br>남은 3개만 풀어볼까요?`;
     } else if (val === 'half') {
-        // 🐱 반냥이 문구
-        msgEl.innerHTML = `
-            <span style="${highlightStyle}">반냥이</span> 모드로<br>
-            6개의 조각을 왼쪽에 배열하여<br>
-            새 게임을 시작할까요?
-        `;
+        msgEl.innerHTML = `<span style="${highlightStyle}">반냥이</span> 모드로<br>6개의 조각을 왼쪽에 배열하여<br>새 게임을 시작할까요?`;
     } else {
-        // 🧩 일반 모드 문구
-        msgEl.innerHTML = `
-            <span style="${highlightStyle}">랜덤 ${val}개</span> 고정으로<br>
-            새로운 게임을 만들까요?
-        `;
+        msgEl.innerHTML = `<span style="${highlightStyle}">랜덤 ${val}개</span> 고정으로<br>새로운 게임을 만들까요?`;
     }
     
     document.getElementById('genModal').style.display = 'flex'; 
 }
 
+// ⚠️ 경고 모달: 예 (변경 확정 및 게임 시작)
+function executeDiffChange() {
+    document.getElementById('diffChangeModal').style.display = 'none';
+    
+    // 1. 난이도 변경 적용
+    currentDifficultyMode = pendingDifficulty;
+    
+    // 2. 기록 초기화 및 라벨 업데이트
+    bestTime = Infinity;
+    updateBestRecordLabel();
+    saveDifficulty();
+    
+    showMessage("난이도 변경! 기록 초기화 🔄");
+
+    // 3. 바로 게임 생성 실행 (다시 묻지 않고 바로 시작)
+    executeNewGame(); 
+}
+
+// ⚠️ 경고 모달: 아니오 (취소)
+function cancelDiffChange() {
+    document.getElementById('diffChangeModal').style.display = 'none';
+    
+    // 선택을 취소했으므로, 드롭다운을 다시 원래(현재 플레이 중인) 난이도로 되돌림
+    document.getElementById('difficulty').value = currentDifficultyMode;
+}
+    
 function closeGen() { document.getElementById('genModal').style.display = 'none'; }
 
 function executeShowAnswer() {
@@ -932,24 +957,7 @@ function getModeTitle(val) {
     };
     return map[val] || 'BEST';
 }
-
-// 🆕 난이도 변경 핸들러 (HTML의 select onchange="handleDifficultyChange()"로 수정 필요)
-function handleDifficultyChange() {
-    const select = document.getElementById('difficulty');
-    const newVal = select.value;
-
-    // 도전자 모드이고, 난이도가 실제로 바뀌었을 때만 체크
-    if (isChallengerMode && newVal !== currentDifficultyMode) {
-        pendingDifficulty = newVal; // 변경하려는 값 임시 저장
-        document.getElementById('diffChangeModal').style.display = 'flex';
-    } else {
-        // 일반 모드거나 난이도 변경이 없으면 바로 적용
-        currentDifficultyMode = newVal;
-        updateBestRecordLabel(); // 라벨 업데이트
-        saveDifficulty();        // 로컬스토리지 저장
-    }
-}
-
+    
 // 🆕 기록 라벨 업데이트 함수
 function updateBestRecordLabel() {
     const title = getModeTitle(currentDifficultyMode);
@@ -964,29 +972,6 @@ function msToTime(duration) {
     const s = Math.floor((duration % 60000) / 1000);
     const ms = Math.floor((duration % 1000) / 10);
     return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}:${String(ms).padStart(2,'0')}`;
-}
-
-// 🆕 모달: 예 (변경 진행)
-function executeDiffChange() {
-    document.getElementById('diffChangeModal').style.display = 'none';
-    
-    // 값 적용
-    currentDifficultyMode = pendingDifficulty;
-    document.getElementById('difficulty').value = currentDifficultyMode;
-    
-    // 💥 핵심: 기록 초기화
-    bestTime = Infinity;
-    updateBestRecordLabel();
-    
-    saveDifficulty();
-    showMessage("난이도 변경! 기록 초기화 🔄");
-}
-
-// 🆕 모달: 아니오 (변경 취소)
-function cancelDiffChange() {
-    document.getElementById('diffChangeModal').style.display = 'none';
-    // 셀렉트 박스를 원래 값으로 되돌림
-    document.getElementById('difficulty').value = currentDifficultyMode;
 }
 
 // 💾 (기존 함수 유지하되 내용 확인)
