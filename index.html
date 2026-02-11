@@ -579,6 +579,21 @@ header {
     </div>
 </div>
 
+<div class="modal-overlay" id="diffChangeModal" onclick="cancelDiffChange()">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h3>난이도 변경 ⚠️</h3>
+        <p style="text-align:center; color:#ddd; margin: 20px 0; line-height: 1.5;">
+            난이도를 변경하면<br>
+            <span style="color:#ff7675; font-weight:bold;">최고 기록</span>이 초기화됩니다.<br>
+            진행할까요?
+        </p>
+        <div class="modal-btn-group">
+            <button class="btn-no" onclick="cancelDiffChange()">아니오</button>
+            <button class="btn-yes" onclick="executeDiffChange()">예</button>
+        </div>
+    </div>
+</div>
+    
 <div class="modal-overlay" id="challengerModal" onclick="closeChallenger()">
     <div class="modal" onclick="event.stopPropagation()">
         <h3>도전자 모드 🔥</h3>
@@ -725,6 +740,8 @@ let startTime = 0;
 let isChallengerMode = false;
 // 기존 변수 아래에 추가
 let bestTime = Infinity; // 초기값은 무한대 (기록 없음)
+    let currentDifficultyMode = '2'; // 현재 설정된 난이도 추적용
+let pendingDifficulty = '';      // 변경 대기 중인 난이도
     
 const boardEl = document.getElementById('board');
 const trayEl = document.getElementById('tray');
@@ -905,7 +922,74 @@ function executeNewGame() {
     loadNewGameLogic();
 }
 
-// 💾 난이도 저장 (문구 업데이트 로직은 제거하고 저장만 수행)
+// 🆕 난이도 라벨을 반환하는 헬퍼 함수
+function getModeTitle(val) {
+    const map = {
+        '2': '2개',
+        '4': '4개',
+        'half': '반냥이',
+        'novice': '초보냥이'
+    };
+    return map[val] || 'BEST';
+}
+
+// 🆕 난이도 변경 핸들러 (HTML의 select onchange="handleDifficultyChange()"로 수정 필요)
+function handleDifficultyChange() {
+    const select = document.getElementById('difficulty');
+    const newVal = select.value;
+
+    // 도전자 모드이고, 난이도가 실제로 바뀌었을 때만 체크
+    if (isChallengerMode && newVal !== currentDifficultyMode) {
+        pendingDifficulty = newVal; // 변경하려는 값 임시 저장
+        document.getElementById('diffChangeModal').style.display = 'flex';
+    } else {
+        // 일반 모드거나 난이도 변경이 없으면 바로 적용
+        currentDifficultyMode = newVal;
+        updateBestRecordLabel(); // 라벨 업데이트
+        saveDifficulty();        // 로컬스토리지 저장
+    }
+}
+
+// 🆕 기록 라벨 업데이트 함수
+function updateBestRecordLabel() {
+    const title = getModeTitle(currentDifficultyMode);
+    // 기록이 있으면 그 시간을, 없으면 00:00:00
+    const timeStr = (bestTime === Infinity) ? "00:00:00" : msToTime(bestTime);
+    document.getElementById('best-record').innerText = `${title} ${timeStr}`;
+}
+
+// 🆕 시간 포맷팅 헬퍼 (기존 코드 재사용을 위해 분리)
+function msToTime(duration) {
+    const m = Math.floor(duration / 60000);
+    const s = Math.floor((duration % 60000) / 1000);
+    const ms = Math.floor((duration % 1000) / 10);
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}:${String(ms).padStart(2,'0')}`;
+}
+
+// 🆕 모달: 예 (변경 진행)
+function executeDiffChange() {
+    document.getElementById('diffChangeModal').style.display = 'none';
+    
+    // 값 적용
+    currentDifficultyMode = pendingDifficulty;
+    document.getElementById('difficulty').value = currentDifficultyMode;
+    
+    // 💥 핵심: 기록 초기화
+    bestTime = Infinity;
+    updateBestRecordLabel();
+    
+    saveDifficulty();
+    showMessage("난이도 변경! 기록 초기화 🔄");
+}
+
+// 🆕 모달: 아니오 (변경 취소)
+function cancelDiffChange() {
+    document.getElementById('diffChangeModal').style.display = 'none';
+    // 셀렉트 박스를 원래 값으로 되돌림
+    document.getElementById('difficulty').value = currentDifficultyMode;
+}
+
+// 💾 (기존 함수 유지하되 내용 확인)
 function saveDifficulty() {
     const val = document.getElementById('difficulty').value;
     localStorage.setItem('catnoodle_difficulty', val);
@@ -913,13 +997,15 @@ function saveDifficulty() {
 
 function loadDifficultySetting() {
     const saved = localStorage.getItem('catnoodle_difficulty');
-    if (saved) {
-        // 저장된 값이 있다면 그 값으로 선택 (2, 4, half 중 하나)
-        const select = document.getElementById('difficulty');
-        if(select.querySelector(`option[value="${saved}"]`)){
-            select.value = saved;
-        }
+    const select = document.getElementById('difficulty');
+    
+    if (saved && select.querySelector(`option[value="${saved}"]`)) {
+        select.value = saved;
+        currentDifficultyMode = saved; // 💡 변수 동기화
+    } else {
+        currentDifficultyMode = select.value;
     }
+    updateBestRecordLabel(); // 💡 초기 라벨 설정
 }
 
 // 초기화 순서에 로드 함수 추가
@@ -1678,13 +1764,16 @@ function checkWinCondition() {
             
             let msg = `<span style="color:#fab1a0">${recordStr}</span>`;
             
-            // 🏆 최고 기록 갱신 체크
-            if (diff < bestTime) {
-                bestTime = diff; // 기록 저장 (ms 단위)
-                document.getElementById('best-record').innerText = `BEST ${recordStr}`; // 화면 갱신
-                msg += `<br><span style="font-size:0.7em; color:#ffffff;">✨ NEW RECORD! ✨</span>`;
-                playSound('success'); // (선택사항) 효과음 등
-            }
+// checkWinCondition 함수 내부의 if (diff < bestTime) 블록 수정
+if (diff < bestTime) {
+    bestTime = diff;
+    // 👇 기존 하드코딩 "BEST"를 동적 타이틀로 변경
+    const title = getModeTitle(currentDifficultyMode);
+    document.getElementById('best-record').innerText = `${title} ${recordStr}`;
+    
+    msg += `<br><span style="font-size:0.7em; color:#ffffff; font-weight:bold;">✨ NEW RECORD! ✨</span>`;
+    playSound('success');
+}
             
             msgBox.innerHTML = msg;
             subMsg.innerText = "퍼즐을 완성했어요! 🏆";
