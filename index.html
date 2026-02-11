@@ -737,6 +737,26 @@ function confirmChallenger() {
     }
 }
 
+    // 👇 [누락된 함수들 추가] 이 코드를 confirmChallenger 근처에 붙여넣으세요.
+
+function closeChallenger() {
+    document.getElementById('challengerModal').style.display = 'none';
+}
+
+function closeStopChallenger() {
+    document.getElementById('stopChallengerModal').style.display = 'none';
+}
+
+function executeStopChallenger() {
+    closeStopChallenger();
+    stopChallenger(); // 실제 종료 로직 실행
+}
+
+// (참고) 승리 시 소리 재생 함수도 없어서 오류가 날 수 있으니 빈 함수로 추가해둡니다.
+function playSound(type) {
+    console.log("Sound played:", type); 
+}
+
 // 타이머 시작 시 display 속성 수정 (block -> flex)
 function executeChallenger() {
     closeChallenger();
