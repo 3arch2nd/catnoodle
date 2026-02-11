@@ -1632,18 +1632,28 @@ function checkWinCondition() {
     const remainingPieces = pieces.filter(p => p.x === -1).length;
     
     if(remainingPieces === 0) {
-        // 🎉 승리!
         const msgBox = document.querySelector('#board-message-box h2');
         const subMsg = document.querySelector('#board-message-box p');
         
         if (isChallengerMode) {
-            stopTimer(); // 타이머 정지
-            const record = document.getElementById('game-timer').innerText;
-            // 텍스트 변경
-            msgBox.innerHTML = `<span style="color:#fab1a0">${record}</span>`;
+            stopTimer();
+            const now = Date.now();
+            const diff = now - startTime; // 현재 걸린 시간(ms)
+            const recordStr = document.getElementById('game-timer').innerText; // 문자열 기록
+            
+            let msg = `<span style="color:#fab1a0">${recordStr}</span>`;
+            
+            // 🏆 최고 기록 갱신 체크
+            if (diff < bestTime) {
+                bestTime = diff; // 기록 저장 (ms 단위)
+                document.getElementById('best-record').innerText = `BEST ${recordStr}`; // 화면 갱신
+                msg += `<br><span style="font-size:0.7em; color:#55efc4;">✨ NEW RECORD! ✨</span>`;
+                playSound('success'); // (선택사항) 효과음 등
+            }
+            
+            msgBox.innerHTML = msg;
             subMsg.innerText = "퍼즐을 완성했어요! 🏆";
         } else {
-            // 일반 모드
             msgBox.innerText = "냥누들 마스터!";
             subMsg.innerText = "퍼즐을 완성했어요🎉";
         }
