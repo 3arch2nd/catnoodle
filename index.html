@@ -626,7 +626,7 @@ header {
 
     <div class="modal-overlay" id="stopChallengerModal" onclick="closeStopChallenger()">
     <div class="modal" onclick="event.stopPropagation()">
-        <h3>도전 중단 🛑</h3>
+        <h3>도전 중단</h3>
         <p style="text-align:center; color:#ddd; margin: 20px 0; line-height: 1.5;">
             도전자 모드를 종료하고<br>일반 모드로 돌아갈까요?
         </p>
@@ -816,7 +816,7 @@ function executeChallenger() {
     
     loadNewGameLogic(); 
     startTimerLogic(); 
-    showMessage("🔥 도전자 모드 시작! 🔥");
+    showMessage("도전자 모드 🔥");
 }
 
 // 타이머 종료 시 숨김 처리 수정
@@ -826,7 +826,7 @@ function stopChallenger() {
     stopTimer();
     document.getElementById('timer-container').style.display = 'none'; // 숨김
     loadNewGameLogic();
-    showMessage("일반 모드로 전환됨 😺");
+    showMessage("일반 모드 😺");
 }
 
 // (타이머 시작 로직을 별도 함수로 분리하면 재사용하기 좋습니다)
