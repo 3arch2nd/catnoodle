@@ -194,6 +194,7 @@ header {
     .best-txt {
         /* 👇 모바일: 오른쪽 벽에 붙어야 하므로 오른쪽 기준 축소 */
         transform-origin: right; 
+    }
 
     /* 👇 1. 도전자(⏱️)와 QR 버튼을 상단에 고정 (중앙 정렬 해제) */
     .btn-challenger, .btn-qr {
@@ -877,7 +878,7 @@ function updateTimer() {
     
     const m = Math.floor(diff / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    const ms = Math.floor((diff % 1000) / 10); // 2자리 밀리초
+    const ms = Math.floor((diff % 1000) / 10);
     
     // ✅ 중앙 타이머 숫자만 업데이트합니다.
     document.getElementById('game-timer').innerText = 
