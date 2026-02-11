@@ -564,8 +564,8 @@ header {
 <select id="difficulty">
     <option value="2">2개</option>
     <option value="4">4개</option>
-    <option value="half" selected>반냥이</option> 
-    <option value="novice">초보냥이</option>
+    <option value="half" selected>반냥</option> 
+    <option value="novice">초보냥</option>
 </select>
     <button class="game-btn btn-gen" onclick="confirmNewGame()">생성</button>
     <button class="game-btn btn-reset" onclick="confirmReset()">초기화</button>
@@ -898,9 +898,9 @@ function showGenModal(val) {
     const highlightStyle = 'color:var(--reset-btn); font-weight:bold;';
 
     if (val === 'novice') {
-        msgEl.innerHTML = `<span style="${highlightStyle}">초보냥이</span> 모드로<br>9개의 조각을 미리 맞추고<br>남은 3개만 풀어볼까요?`;
+        msgEl.innerHTML = `<span style="${highlightStyle}">초보냥</span> 모드로<br>9개의 조각을 미리 맞추고<br>남은 3개만 풀어볼까요?`;
     } else if (val === 'half') {
-        msgEl.innerHTML = `<span style="${highlightStyle}">반냥이</span> 모드로<br>6개의 조각을 왼쪽에 배열하여<br>새 게임을 시작할까요?`;
+        msgEl.innerHTML = `<span style="${highlightStyle}">반냥</span> 모드로<br>6개의 조각을 왼쪽에 배열하여<br>새 게임을 시작할까요?`;
     } else {
         msgEl.innerHTML = `<span style="${highlightStyle}">랜덤 ${val}개</span> 고정으로<br>새로운 게임을 만들까요?`;
     }
@@ -974,8 +974,8 @@ function getModeTitle(val) {
     const map = {
         '2': '2개',
         '4': '4개',
-        'half': '반냥이',
-        'novice': '초보냥이'
+        'half': '반냥',
+        'novice': '초보냥'
     };
     return map[val] || 'BEST';
 }
@@ -1240,7 +1240,7 @@ function applyDifficulty() {
     let allIndices = pieces.map((_, i) => i);
     let lockedIndices = [];
 
-    // 💡 수정된 부분: 반냥이(half) 또는 초보냥이(novice)인 경우
+    // 💡 수정된 부분: 반냥(half) 또는 초보냥(novice)인 경우
     if (val === 'half' || val === 'novice') {
         // 1. 현재 조각들의 위치와 인덱스를 가져옴
         let piecePositions = pieces.map((p, index) => ({ index: index, x: p.x }));
