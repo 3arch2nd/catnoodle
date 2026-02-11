@@ -833,13 +833,18 @@ function executeChallenger() {
     showMessage("도전자 모드 🔥");
 }
 
-// 타이머 종료 시 숨김 처리 수정
+// 타이머 종료 시 (도전자 -> 일반 모드 전환)
 function stopChallenger() {
     isChallengerMode = false;
     document.querySelector('.btn-challenger').innerText = '⏱️';
     stopTimer();
-    document.getElementById('timer-container').style.display = 'none'; // 숨김
-    loadNewGameLogic();
+    
+    // 타이머 UI 숨기기
+    document.getElementById('timer-container').style.display = 'none'; 
+    
+    // 🛑 [수정] 아래 줄을 삭제하거나 주석 처리하여 현재 퍼즐을 유지합니다!
+    // loadNewGameLogic(); 
+    
     showMessage("일반 모드 😺");
 }
 
