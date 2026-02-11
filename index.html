@@ -87,70 +87,80 @@ header {
 }
 .btn-challenger:hover { transform: translateY(-50%) scale(1.1); }
 
-/* 🆕 타이머 컨테이너 (위치 잡기용) */
+/* 🆕 타이머 컨테이너 (PC: 세로 배치) */
 #timer-container {
     position: absolute;
-    left: 70px; /* 버튼 옆 */
+    left: 70px; /* ⏱️ 버튼 옆 */
     top: 50%;
     transform: translateY(-50%);
-    text-align: left; /* PC에서는 왼쪽 정렬 */
+    text-align: left;
+    
+    /* 👇 PC에서 세로로 쌓이도록 설정 */
+    display: none; /* JS로 제어 (flex로 변경됨) */
+    flex-direction: column; 
+    gap: 2px; /* 숫자와 기록 사이 간격 좁게 */
 }
 
-/* 타이머 디자인 (흔들림 방지) */
+/* 타이머 숫자 디자인 */
 #game-timer {
     font-family: 'Oswald', sans-serif;
     font-weight: 700;
-    font-size: 1.4rem;
+    font-size: 1.6rem; /* 크기 약간 키움 */
     color: #2d3436;
-    font-variant-numeric: tabular-nums; /* 💡 숫자 너비 고정 (필수!) */
-    letter-spacing: 1px;
-    width: 110px; /* 너비 고정해서 떨림 방지 */
+    font-variant-numeric: tabular-nums; /* 💡 숫자 너비 고정 (흔들림 방지 필수) */
+    letter-spacing: 0.5px;
+    line-height: 1; /* 줄 간격 타이트하게 */
 }
 
-/* 최고 기록 디자인 */
+/* 최고 기록 디자인 (PC: 회색, 아래로 배치) */
 #best-record {
-    font-size: 0.75rem;
-    color: #fab1a0; /* 살구색 포인트 */
-    font-weight: bold;
+    font-size: 0.8rem;
+    color: #b2bec3; /* 🔘 요청하신 회색 */
+    font-weight: 500;
     font-family: 'Oswald', sans-serif;
-    margin-top: -2px;
+    margin-left: 2px; /* 타이머 숫자와 시각적 정렬 */
 }
 
-/* 📱 모바일 전용 스타일 */
+/* 📱 모바일 전용 스타일 (컨테이너 제거 및 양쪽 정렬) */
 @media (max-width: 700px) {
     #timer-container {
+        /* 위치: 화면 하단 고정 */
         position: fixed;
-        left: 50%;
-        top: auto;
+        left: 0;
         bottom: 20px;
-        transform: translateX(-50%);
+        width: 100%; /* 화면 전체 너비 사용 */
+        top: auto;
+        transform: none; /* 중앙 정렬 해제 */
         
-        background: rgba(45, 52, 54, 0.95);
-        padding: 8px 20px;
-        border-radius: 30px;
-        z-index: 8000;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        /* 💡 컨테이너 스타일(배경) 제거 */
+        background: transparent;
+        box-shadow: none;
+        padding: 0 30px; /* 양옆 패딩 (화면 끝에서 띄우기) */
+        border-radius: 0;
         
-        /* 💡 모바일에서는 가로로 배치 (타이머 | 베스트) */
-        display: none; /* JS로 제어 */
+        /* 배치: 양쪽 끝으로 벌리기 */
         flex-direction: row; 
-        align-items: center;
-        gap: 15px;
+        justify-content: space-between;
+        align-items: flex-end; /* 텍스트 베이스라인 정렬 */
+        z-index: 8000;
+        
+        /* 🚫 터치 방해 금지 (투명한 영역 클릭 시 게임 조각 선택 가능하게) */
+        pointer-events: none;
     }
 
     #game-timer {
-        color: #fab1a0; /* 모바일은 어두운 배경이라 밝은 색 */
-        font-size: 1.5rem;
-        width: auto; /* 모바일은 flex라 자동 너비 */
-        margin: 0;
+        color: #2d3436; /* 🖤 모바일도 검정색 (배경이 밝으므로) */
+        font-size: 1.6rem;
+        text-shadow: 0 2px 10px rgba(255,255,255,0.8); /* 가독성 확보용 은은한 테두리 */
     }
 
     #best-record {
-        color: #b2bec3; /* 연한 회색 */
-        font-size: 0.85rem;
-        border-left: 1px solid #636e72; /* 구분선 */
-        padding-left: 10px;
+        color: #b2bec3; /* 🔘 회색 */
+        font-size: 0.9rem;
+        border: none; /* 기존 구분선 제거 */
+        padding: 0;
         margin: 0;
+        margin-bottom: 3px; /* 타이머 숫자와 높이 맞추기 */
     }
 }
         
