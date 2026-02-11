@@ -317,6 +317,15 @@ header {
             display: flex; gap: 8px; margin-bottom: 5px; 
             flex-wrap: wrap; justify-content: center; z-index: 20; 
         }
+/* 👇 비활성화된 버튼 스타일 추가 */
+button.game-btn:disabled {
+    background-color: #b2bec3 !important; /* 연한 회색 */
+    color: #dfe6e9 !important; /* 글자도 연하게 */
+    cursor: not-allowed; /* 금지 커서 */
+    box-shadow: none; /* 그림자 제거 */
+    transform: none !important; /* 눌리는 효과 제거 */
+}
+        
         select, button.game-btn {
             padding: 8px 14px; border-radius: 6px; border: none; font-size: 0.95rem;
             cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.1); font-weight: 400; color: white;
@@ -984,11 +993,16 @@ function closeGen() { document.getElementById('genModal').style.display = 'none'
 function executeShowAnswer() {
     closeAnswer();
     
-    // 🛑 타이머 정지 및 00:00:00으로 초기화 (추가된 부분)
-    stopTimer();
-    document.getElementById('game-timer').innerText = "00:00:00";
+    // 🛑 타이머 정지
+    if (isChallengerMode) {
+        stopTimer();
+        document.getElementById('game-timer').innerText = "00:00:00";
+    }
     
-    // 기존 정답 처리 로직
+    // 🔒 [추가] 초기화 버튼 비활성화 (잠금)
+    document.querySelector('.btn-reset').disabled = true;
+
+    // 기존 정답 로직
     boardState = JSON.parse(JSON.stringify(answerKey));
     extractPiecesFromBoard(); 
     renderPieces();
@@ -1151,9 +1165,12 @@ function loadNewGame() {
 }
 
 function loadNewGameLogic() {
+    // 🔓 [추가] 새 게임 시작 시 초기화 버튼 다시 활성화
+    document.querySelector('.btn-reset').disabled = false;
+
     if (isChallengerMode) {
         startTimerLogic(); 
-        document.getElementById('timer-container').style.display = 'flex'; // 유지
+        document.getElementById('timer-container').style.display = 'flex'; 
     } else {
         stopTimer();
         document.getElementById('timer-container').style.display = 'none';
