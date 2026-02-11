@@ -68,6 +68,57 @@ header {
             object-fit: contain;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
         }
+
+/* 🆕 도전자 버튼 (왼쪽 상단) */
+.btn-challenger {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fab1a0; /* 살구색 포인트 */
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    z-index: 100;
+    transition: transform 0.2s;
+}
+.btn-challenger:hover { transform: translateY(-50%) scale(1.1); }
+
+/* 🆕 타이머 디자인 & 위치 (PC 기준) */
+#game-timer {
+    position: absolute;
+    left: 70px; /* 버튼 옆에 배치 */
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Oswald', sans-serif; /* 숫자가 예쁜 폰트 */
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #2d3436;
+    font-variant-numeric: tabular-nums; /* 💡 숫자가 흔들리지 않게 고정폭 사용 */
+    display: none; /* 기본은 숨김 */
+}
+
+/* 📱 모바일 전용 스타일 (타이머를 하단으로 이동) */
+@media (max-width: 700px) {
+    #game-timer {
+        position: fixed; /* 화면에 고정 */
+        left: 50%;
+        top: auto;
+        bottom: 20px; /* 💡 화면 하단 여백 */
+        transform: translateX(-50%); /* 가로 중앙 정렬 */
+        
+        background: rgba(45, 52, 54, 0.9); /* 배경 추가 (가독성) */
+        color: #fab1a0; /* 글자색 변경 */
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 1.5rem;
+        z-index: 8000; /* 맨 위로 */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+}
         
 /* 2. 물음표 버튼: 원래대로 복구 (기존 코드에 있다면 확인만 하세요) */
 .btn-help {
@@ -430,13 +481,14 @@ header {
 </head>
 <body>
 <header>
-    <h1>
-        <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Grinning%20cat/3D/grinning_cat_3d.png" alt="Cat" class="title-icon">
-        CATNOODLE
-        <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Puzzle%20piece/3D/puzzle_piece_3d.png" alt="Puzzle" class="title-icon">
-    </h1>
-    <button class="btn-help" onclick="openHelp()">?</button>
+    <button class="btn-challenger" onclick="confirmChallenger()">⏱️</button>
+    
+    <div id="game-timer">00:00:00</div>
 
+    <h1>
+        CATNOODLE
+        </h1>
+    <button class="btn-help" onclick="openHelp()">?</button>
     <button class="btn-qr" onclick="openQR()">QR</button>
 </header>
 
@@ -474,6 +526,20 @@ header {
     </div>
 </div>
 
+<div class="modal-overlay" id="challengerModal" onclick="closeChallenger()">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h3>도전자 모드 🔥</h3>
+        <p style="text-align:center; color:#ddd; margin: 20px 0; line-height: 1.5;">
+            현재 퍼즐을 초기화하고<br>
+            <span style="color:#ff7675; font-weight:bold;">빠르게 풀기</span>를 시작할까요?
+        </p>
+        <div class="modal-btn-group">
+            <button class="btn-no" onclick="closeChallenger()">아니오</button>
+            <button class="btn-yes" onclick="executeChallenger()">예</button>
+        </div>
+    </div>
+</div>
+    
 <div class="modal-overlay" id="helpModal" onclick="closeHelp()">
     <div class="modal" onclick="event.stopPropagation()">
         <h3>조작 방법</h3>
@@ -587,6 +653,11 @@ let currentProblemIdx = -1;
 // 🎲 [추가] 셔플 로직을 위한 전역 변수
 let puzzleDeck = [];
 
+    // 기존 변수들 아래에 추가
+let timerInterval = null;
+let startTime = 0;
+let isChallengerMode = false;
+
 const boardEl = document.getElementById('board');
 const trayEl = document.getElementById('tray');
 const gameUnitEl = document.getElementById('game-unit');
@@ -594,6 +665,49 @@ const trayOverlay = document.getElementById('tray-overlay');
 const boardOverlay = document.getElementById('board-overlay'); 
 const ghostEl = document.getElementById('ghost');
 
+    // ⏱️ 도전자 모드 관련 함수들
+function confirmChallenger() {
+    document.getElementById('challengerModal').style.display = 'flex';
+}
+function closeChallenger() {
+    document.getElementById('challengerModal').style.display = 'none';
+}
+
+function executeChallenger() {
+    closeChallenger();
+    isChallengerMode = true;
+    document.getElementById('game-timer').style.display = 'block'; // 타이머 보이기
+    
+    // 게임 재시작 로직 호출
+    loadNewGameLogic(); 
+    
+    // 타이머 시작
+    stopTimer(); // 혹시 돌고 있으면 멈춤
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 10); // 10ms 단위 갱신
+    
+    showMessage("🔥 도전자 모드 시작! 🔥");
+}
+
+function updateTimer() {
+    const now = Date.now();
+    const diff = now - startTime;
+    
+    const m = Math.floor(diff / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const ms = Math.floor((diff % 1000) / 10); // 2자리 밀리초
+    
+    // 00:00:00 포맷팅
+    document.getElementById('game-timer').innerText = 
+        `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}:${String(ms).padStart(2,'0')}`;
+}
+
+function stopTimer() {
+    if(timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
 // 🌐 IT 지식: window.location.href는 현재 브라우저의 주소창 내용을 가져옵니다.
 // qrserver.com API를 사용하여 이미지를 실시간으로 생성합니다.
 
@@ -666,6 +780,7 @@ function executeReset() {
 
 function executeNewGame() {
     closeGen();
+    isChallengerMode = false; // 💡 일반 모드로 리셋
     loadNewGameLogic();
 }
 
@@ -772,6 +887,11 @@ function loadNewGame() {
 }
 
 function loadNewGameLogic() {
+    // 👇 기존 코드 맨 윗줄에 이 내용을 추가하세요
+    if (!isChallengerMode) {
+        stopTimer();
+        document.getElementById('game-timer').style.display = 'none';
+    }
     if(pickedPieceIdx !== null) releasePiece();
     trayOverlay.style.display = 'none';
     const bOverlay = document.getElementById('board-overlay');
@@ -1420,12 +1540,28 @@ function placePieceToBoardState(shape, r, c, id) {
 
 function checkWinCondition() {
     const remainingPieces = pieces.filter(p => p.x === -1).length;
+    
     if(remainingPieces === 0) {
+        // 🎉 승리!
+        const msgBox = document.querySelector('#board-message-box h2');
+        const subMsg = document.querySelector('#board-message-box p');
+        
+        if (isChallengerMode) {
+            stopTimer(); // 타이머 정지
+            const record = document.getElementById('game-timer').innerText;
+            // 텍스트 변경
+            msgBox.innerHTML = `<span style="color:#fab1a0">${record}</span>`;
+            subMsg.innerText = "퍼즐을 완성했어요! 🏆";
+        } else {
+            // 일반 모드
+            msgBox.innerText = "냥누들 마스터!";
+            subMsg.innerText = "퍼즐을 완성했어요🎉";
+        }
+
         const bOverlay = document.getElementById('board-overlay');
         if(bOverlay) bOverlay.style.display = 'flex';
     }
 }
-
 function showMessage(t) {
     const m=document.getElementById('message'); m.textContent=t; m.style.display='block';
     setTimeout(()=>m.style.display='none', 2000);
