@@ -545,12 +545,12 @@ header {
 </header>
 
 <div class="controls">
-    <select id="difficulty" onchange="saveDifficulty()">
-        <option value="2">2개</option>
-        <option value="4">4개</option>
-        <option value="half">반냥이</option>
-        <option value="novice">초보냥이</option>
-    </select>
+<select id="difficulty" onchange="handleDifficultyChange()">
+    <option value="2">2개</option>
+    <option value="4">4개</option>
+    <option value="half" selected>반냥이</option> 
+    <option value="novice">초보냥이</option>
+</select>
     <button class="game-btn btn-gen" onclick="confirmNewGame()">생성</button>
     <button class="game-btn btn-reset" onclick="confirmReset()">초기화</button>
     <button class="game-btn btn-answer" onclick="confirmShowAnswer()">정답</button>
@@ -740,7 +740,7 @@ let startTime = 0;
 let isChallengerMode = false;
 // 기존 변수 아래에 추가
 let bestTime = Infinity; // 초기값은 무한대 (기록 없음)
-    let currentDifficultyMode = '2'; // 현재 설정된 난이도 추적용
+let currentDifficultyMode = 'half';
 let pendingDifficulty = '';      // 변경 대기 중인 난이도
     
 const boardEl = document.getElementById('board');
@@ -1001,11 +1001,14 @@ function loadDifficultySetting() {
     
     if (saved && select.querySelector(`option[value="${saved}"]`)) {
         select.value = saved;
-        currentDifficultyMode = saved; // 💡 변수 동기화
+        currentDifficultyMode = saved; // 저장된 값으로 동기화
     } else {
-        currentDifficultyMode = select.value;
+        // 저장된 게 없으면 현재 선택된 값(기본값)으로 동기화
+        currentDifficultyMode = select.value; 
     }
-    updateBestRecordLabel(); // 💡 초기 라벨 설정
+    
+    // 화면에 텍스트 반영 (2개 00:00:00 등)
+    updateBestRecordLabel(); 
 }
 
 // 초기화 순서에 로드 함수 추가
