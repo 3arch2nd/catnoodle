@@ -202,24 +202,29 @@ header {
     }
 }
 
-/* 2️⃣ 찐 모바일 전용 (스마트폰 터치 기기만 적용) */
-/* 👉 제목 내리기, 상단 버튼 고정은 오직 폰에서만! */
-@media (max-width: 700px) and (hover: none) {
-    /* 버튼들을 최상단 구석으로 강제 이동 */
+/* 2️⃣ 찐 모바일 전용 (터치 스크린 기기만 적용) */
+/* 👉 pointer: coarse 조건은 '손가락'을 사용하는 기기를 아주 정확하게 찾아냅니다 */
+@media (max-width: 700px) and (pointer: coarse) {
+    /* 1. 버튼들을 최상단 구석으로 강제 이동 */
     .btn-challenger, .btn-qr {
-        top: 25px !important; 
+        top: 10px !important; 
         transform: none !important;
     }
 
-    /* 헤더 윗공간 확보하여 제목을 아래로 밀기 */
+    /* 2. 헤더 윗공간 확보하여 제목을 아래로 밀기 */
     header {
-        padding-top: 60px !important;
-        margin-bottom: 15px !important;
+        /* 기존 15px -> 60px로 늘려서 제목을 아래로 꾹 누릅니다 */
+        padding-top: 60px !important; 
+        margin-bottom: 5px !important;
+        
+        /* 💡 혹시 모를 flex 정렬 충돌 방지용 (안전장치) */
+        align-items: flex-end; 
+        padding-bottom: 10px;
     }
 
-    /* 컨트롤 버튼 간격 미세 조정 */
+    /* 3. 컨트롤 버튼 간격 미세 조정 */
     .controls {
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
 }
         
