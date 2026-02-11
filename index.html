@@ -859,9 +859,9 @@ function updateTimer() {
     const ms = Math.floor((diff % 1000) / 10); // 2자리 밀리초
     
     // 00:00:00 포맷팅
-    document.getElementById('game-timer').innerText = 
-        `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}:${String(ms).padStart(2,'0')}`;
-}
+// 👇 태그 구조를 그대로 유지하면서 값만 넣도록 수정합니다.
+document.getElementById('best-record').innerHTML = 
+    `<span class="best-txt">${title}</span><span class="best-time">${recordStr}</span>`;
 
 function stopTimer() {
     if(timerInterval) {
@@ -994,12 +994,12 @@ function getModeTitle(val) {
     return map[val] || 'BEST';
 }
     
+// 이 함수가 이미 innerHTML을 사용하고 있으므로, 
+// 기록이 바뀔 땐 항상 이 함수를 부르거나 이 형식을 따라야 합니다.
 function updateBestRecordLabel() {
     const title = getModeTitle(currentDifficultyMode);
-    // 기록이 있으면 시간, 없으면 00:00:00
     const timeStr = (bestTime === Infinity) ? "00:00:00" : msToTime(bestTime);
     
-    // 👇 innerHTML을 사용하여 '한글'과 '숫자'에 각각 다른 클래스를 적용합니다.
     document.getElementById('best-record').innerHTML = 
         `<span class="best-txt">${title}</span><span class="best-time">${timeStr}</span>`;
 }
