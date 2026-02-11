@@ -1791,11 +1791,14 @@ function checkWinCondition() {
             let msg = `<span style="color:#fab1a0">${recordStr}</span>`;
             
 // checkWinCondition 함수 내부의 if (diff < bestTime) 블록 수정
+// checkWinCondition 함수 내부의 신기록 달성 블록 찾기
 if (diff < bestTime) {
     bestTime = diff;
-    // 👇 기존 하드코딩 "BEST"를 동적 타이틀로 변경
     const title = getModeTitle(currentDifficultyMode);
-    document.getElementById('best-record').innerText = `${title} ${recordStr}`;
+    
+    // ✅ innerText 대신 innerHTML을 사용하여 우리가 설정한 폰트 클래스를 유지합니다.
+    document.getElementById('best-record').innerHTML = 
+        `<span class="best-txt">${title}</span><span class="best-time">${recordStr}</span>`;
     
     msg += `<br><span style="font-size:0.7em; color:#ffffff; font-weight:bold;">✨ NEW RECORD! ✨</span>`;
     playSound('success');
