@@ -497,6 +497,7 @@ header {
         <option value="2">2개</option>
         <option value="4">4개</option>
         <option value="half">반냥이</option>
+        <option value="novice">초보냥이</option>
     </select>
     <button class="game-btn btn-gen" onclick="confirmNewGame()">생성</button>
     <button class="game-btn btn-reset" onclick="confirmReset()">초기화</button>
@@ -729,7 +730,6 @@ function closeAnswer() { document.getElementById('answerModal').style.display = 
 function confirmReset() { document.getElementById('resetModal').style.display = 'flex'; }
 function closeReset() { document.getElementById('resetModal').style.display = 'none'; }
 
-// 💬 생성 버튼 클릭 시: 난이도에 따라 안내 문구를 다르게 표시
 function confirmNewGame() { 
     const val = document.getElementById('difficulty').value;
     const msgEl = document.getElementById('gen-message');
@@ -737,20 +737,31 @@ function confirmNewGame() {
     // 스타일 변수 (주황색 강조)
     const highlightStyle = 'color:var(--reset-btn); font-weight:bold;';
 
-    if (val === 'half') {
-        // 🐱 반냥이 모드 문구
+    // 👇 로직 수정: 'novice' 케이스 추가
+    if (val === 'novice') {
+        // 🐣 초보냥이 문구
+        msgEl.innerHTML = `
+            <span style="${highlightStyle}">초보냥이</span> 모드로<br>
+            9개의 조각을 미리 맞추고<br>
+            남은 3개만 풀어볼까요?
+        `;
+    } else if (val === 'half') {
+        // 🐱 반냥이 문구
         msgEl.innerHTML = `
             <span style="${highlightStyle}">반냥이</span> 모드로<br>
             6개의 조각을 왼쪽에 배열하여<br>
             새 게임을 시작할까요?
         `;
     } else {
-        // 🧩 일반 모드 (2개/4개) 문구
+        // 🧩 일반 모드 문구
         msgEl.innerHTML = `
-            <span style="${highlightStyle}">${val}개</span> 고정으로<br>
+            <span style="${highlightStyle}">랜덤 ${val}개</span> 고정으로<br>
             새로운 게임을 만들까요?
         `;
     }
+    
+    document.getElementById('genModal').style.display = 'flex'; 
+}
     
     document.getElementById('genModal').style.display = 'flex'; 
 }
@@ -1019,18 +1030,20 @@ function applyDifficulty() {
     let allIndices = pieces.map((_, i) => i);
     let lockedIndices = [];
 
-    if (val === 'half') {
-        // 🐱 [반냥이 모드] 
+    // 💡 수정된 부분: 반냥이(half) 또는 초보냥이(novice)인 경우
+    if (val === 'half' || val === 'novice') {
+        // 1. 현재 조각들의 위치와 인덱스를 가져옴
         let piecePositions = pieces.map((p, index) => ({ index: index, x: p.x }));
         
-        // x좌표 기준 오름차순 정렬 (왼쪽 -> 오른쪽)
+        // 2. x좌표 기준 오름차순 정렬 (왼쪽 -> 오른쪽)
         piecePositions.sort((a, b) => a.x - b.x);
         
-        // 앞에서부터 6개만 잠금 리스트에 추가
-        lockedIndices = piecePositions.slice(0, 6).map(obj => obj.index);
+        // 3. 잠글 개수 결정 (초보냥이는 9개, 반냥이는 6개)
+        const lockCount = (val === 'novice') ? 9 : 6;
         
-        // ❌ 삭제됨: document.getElementById('gen-count-text').innerText = "반냥이"; 
-        // (이젠 모달을 띄울 때 문구를 만들기 때문에 여기서 업데이트할 필요가 없습니다!)
+        // 4. 앞에서부터 개수만큼 잘라서 잠금 리스트에 추가
+        lockedIndices = piecePositions.slice(0, lockCount).map(obj => obj.index);
+        
     } else {
         // [일반 모드] 무작위 N개 잠금
         const keepCount = parseInt(val);
@@ -1039,9 +1052,9 @@ function applyDifficulty() {
             lockedIndices.push(allIndices[r]);
             allIndices.splice(r, 1);
         }
-        // ❌ 삭제됨: document.getElementById('gen-count-text').innerText = ...;
     }
 
+    // 잠금 상태 적용
     pieces.forEach((p, idx) => {
         if(lockedIndices.includes(idx)) {
             p.isLocked = true;
@@ -1052,7 +1065,7 @@ function applyDifficulty() {
         }
     });
 }
-
+    
 function removePieceFromBoardState(shape, r, c) {
     for(let i=0; i<shape.length; i++) for(let j=0; j<shape[0].length; j++) if(shape[i][j]) boardState[r+i][c+j]=-1;
 }
