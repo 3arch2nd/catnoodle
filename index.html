@@ -112,22 +112,36 @@ header {
     line-height: 1; /* 줄 간격 타이트하게 */
 }
 
-/* BEST 기록 디자인 (PC) */
+/* BEST 기록 컨테이너 (Flex로 배치) */
 #best-record {
-    font-size: 1.0rem;
-    color: #636e72;
-    font-weight: 700;
-    
-    /* 👇 폰트 변경 및 장평 80% 적용 */
-    font-family: 'Noto Sans KR', sans-serif;
-    display: inline-block; /* 변형을 위해 블록 속성 필요 */
-    transform: scaleX(0.8); /* 장평 80% */
-    transform-origin: left; /* 왼쪽 기준으로 축소 (PC) */
-    
+    display: flex;
+    align-items: baseline;   /* 글자 밑라인(Baseline) 기준으로 정렬 */
+    justify-content: flex-start; /* PC: 왼쪽 정렬 */
+    gap: 8px; /* 한글과 숫자 사이의 간격 (장평 축소 감안하여 넉넉히) */
     margin-top: -2px;
-    white-space: nowrap; /* 줄바꿈 방지 */
 }
 
+/* 1. 한글 텍스트 (Noto Sans KR + 장평 80%) */
+.best-txt {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem; /* 숫자보다 살짝 작게 */
+    color: #636e72;
+    
+    display: inline-block;
+    transform: scaleX(0.8);  /* 💡 요청하신 장평 80% */
+    transform-origin: right; /* 오른쪽(숫자 쪽)을 기준으로 축소되어 붙음 */
+    white-space: nowrap;
+}
+
+/* 2. 숫자 텍스트 (Oswald) */
+.best-time {
+    font-family: 'Oswald', sans-serif; /* 💡 타이머와 동일한 폰트 */
+    font-weight: 700;
+    font-size: 1.0rem;
+    color: #636e72;
+    letter-spacing: 0.5px;
+}
 
 /* 📱 모바일 전용 스타일 (컨테이너 제거 및 양쪽 정렬) */
 @media (max-width: 700px) {
@@ -163,15 +177,11 @@ header {
     }
 
     #best-record {
-        color: #636e72;
-        font-size: 1.0rem;
-        border: none;
-        padding: 0;
+        justify-content: flex-end; /* 모바일: 오른쪽 정렬 */
         margin: 0;
         margin-bottom: 5px;
-        
-        /* 👇 모바일에서는 오른쪽 기준으로 축소해야 벽에 붙습니다 */
-        transform-origin: right; 
+        border: none;
+        padding: 0;
     }
 }
         
@@ -970,12 +980,14 @@ function getModeTitle(val) {
     return map[val] || 'BEST';
 }
     
-// 🆕 기록 라벨 업데이트 함수
 function updateBestRecordLabel() {
     const title = getModeTitle(currentDifficultyMode);
-    // 기록이 있으면 그 시간을, 없으면 00:00:00
+    // 기록이 있으면 시간, 없으면 00:00:00
     const timeStr = (bestTime === Infinity) ? "00:00:00" : msToTime(bestTime);
-    document.getElementById('best-record').innerText = `${title} ${timeStr}`;
+    
+    // 👇 innerHTML을 사용하여 '한글'과 '숫자'에 각각 다른 클래스를 적용합니다.
+    document.getElementById('best-record').innerHTML = 
+        `<span class="best-txt">${title}</span><span class="best-time">${timeStr}</span>`;
 }
 
 // 🆕 시간 포맷팅 헬퍼 (기존 코드 재사용을 위해 분리)
