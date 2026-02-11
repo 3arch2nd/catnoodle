@@ -666,28 +666,57 @@ const trayOverlay = document.getElementById('tray-overlay');
 const boardOverlay = document.getElementById('board-overlay'); 
 const ghostEl = document.getElementById('ghost');
 
-    // ⏱️ 도전자 모드 관련 함수들
 function confirmChallenger() {
-    document.getElementById('challengerModal').style.display = 'flex';
+    if (isChallengerMode) {
+        // 이미 켜져있다면 -> 끄겠냐고 물어보거나 바로 끄기
+        // 여기서는 바로 끄는 것으로 구현 (UX상 빠름)
+        if(confirm("도전자 모드를 종료하고 일반 모드로 돌아갈까요?")) {
+            stopChallenger();
+        }
+    } else {
+        // 꺼져있다면 -> 켤지 물어보는 모달 띄우기
+        document.getElementById('challengerModal').style.display = 'flex';
+    }
 }
 function closeChallenger() {
     document.getElementById('challengerModal').style.display = 'none';
 }
 
+// 1. 도전자 모드 시작 (타이머 켜기)
 function executeChallenger() {
     closeChallenger();
     isChallengerMode = true;
-    document.getElementById('game-timer').style.display = 'block'; // 타이머 보이기
     
-    // 게임 재시작 로직 호출
-    loadNewGameLogic(); 
+    // 버튼 아이콘 변경: ⏱️ -> 🐱 (일반 모드로 돌아가기 버튼임)
+    document.querySelector('.btn-challenger').innerText = '🐱';
     
-    // 타이머 시작
-    stopTimer(); // 혹시 돌고 있으면 멈춤
-    startTime = Date.now();
-    timerInterval = setInterval(updateTimer, 10); // 10ms 단위 갱신
+    document.getElementById('game-timer').style.display = 'block';
     
+    loadNewGameLogic(); // 게임 재시작
+    
+    startTimerLogic(); // 타이머 시작 함수 분리 (아래 참고)
     showMessage("🔥 도전자 모드 시작! 🔥");
+}
+
+// 🆕 2. 도전자 모드 종료 (일반 모드로 복귀)
+function stopChallenger() {
+    isChallengerMode = false;
+    
+    // 버튼 아이콘 복구: 🐱 -> ⏱️
+    document.querySelector('.btn-challenger').innerText = '⏱️';
+    
+    stopTimer(); // 타이머 멈춤
+    document.getElementById('game-timer').style.display = 'none'; // 숨김
+    
+    loadNewGameLogic(); // 일반 게임으로 재시작
+    showMessage("일반 모드로 전환됨 😺");
+}
+
+// (타이머 시작 로직을 별도 함수로 분리하면 재사용하기 좋습니다)
+function startTimerLogic() {
+    stopTimer();
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 10);
 }
 
 function updateTimer() {
@@ -789,7 +818,6 @@ function executeReset() {
 
 function executeNewGame() {
     closeGen();
-    isChallengerMode = false; // 💡 일반 모드로 리셋
     loadNewGameLogic();
 }
 
@@ -896,8 +924,11 @@ function loadNewGame() {
 }
 
 function loadNewGameLogic() {
-    // 👇 기존 코드 맨 윗줄에 이 내용을 추가하세요
-    if (!isChallengerMode) {
+    // 도전자 모드라면 타이머를 0부터 다시 시작
+    if (isChallengerMode) {
+        startTimerLogic(); 
+        document.getElementById('game-timer').style.display = 'block';
+    } else {
         stopTimer();
         document.getElementById('game-timer').style.display = 'none';
     }
