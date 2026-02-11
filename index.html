@@ -6,7 +6,7 @@
     <title>CATNOODLE v3.4</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -114,13 +114,18 @@ header {
 
 /* BEST 기록 디자인 (PC) */
 #best-record {
-    /* 👇 크기 확대 (0.8rem -> 1.0rem) */
-    font-size: 1.0rem; 
-    /* 👇 진한 회색으로 변경 (#b2bec3 -> #636e72) */
-    color: #636e72;    
-    font-weight: 700;  /* 굵게 처리하여 가독성 확보 */
-    font-family: 'Oswald', sans-serif;
-    margin-top: -2px;  /* 타이머와 간격 조절 */
+    font-size: 1.0rem;
+    color: #636e72;
+    font-weight: 700;
+    
+    /* 👇 폰트 변경 및 장평 80% 적용 */
+    font-family: 'Noto Sans KR', sans-serif;
+    display: inline-block; /* 변형을 위해 블록 속성 필요 */
+    transform: scaleX(0.8); /* 장평 80% */
+    transform-origin: left; /* 왼쪽 기준으로 축소 (PC) */
+    
+    margin-top: -2px;
+    white-space: nowrap; /* 줄바꿈 방지 */
 }
 
 
@@ -158,14 +163,15 @@ header {
     }
 
     #best-record {
-        /* 👇 모바일에서도 진한 회색 */
-        color: #636e72; 
-        /* 👇 모바일 크기 확대 */
-        font-size: 1.0rem; 
+        color: #636e72;
+        font-size: 1.0rem;
         border: none;
         padding: 0;
         margin: 0;
-        margin-bottom: 5px; /* 타이머 숫자 높이와 시각적 균형 */
+        margin-bottom: 5px;
+        
+        /* 👇 모바일에서는 오른쪽 기준으로 축소해야 벽에 붙습니다 */
+        transform-origin: right; 
     }
 }
         
@@ -922,6 +928,12 @@ function closeGen() { document.getElementById('genModal').style.display = 'none'
 
 function executeShowAnswer() {
     closeAnswer();
+    
+    // 🛑 타이머 정지 및 00:00:00으로 초기화 (추가된 부분)
+    stopTimer();
+    document.getElementById('game-timer').innerText = "00:00:00";
+    
+    // 기존 정답 처리 로직
     boardState = JSON.parse(JSON.stringify(answerKey));
     extractPiecesFromBoard(); 
     renderPieces();
