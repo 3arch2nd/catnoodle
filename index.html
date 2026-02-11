@@ -1278,7 +1278,7 @@ function applyDifficulty() {
         }
     }
 
-    // 잠금 상태 적용
+// 잠금 상태 적용
     pieces.forEach((p, idx) => {
         if(lockedIndices.includes(idx)) {
             p.isLocked = true;
@@ -1286,6 +1286,9 @@ function applyDifficulty() {
             p.isLocked = false;
             removePieceFromBoardState(p.currentShape, p.y, p.x);
             p.x = -1; p.y = -1;
+            
+            // 👇 [추가] 모음판으로 가는 조각들을 무작위로 변형합니다!
+            randomizePieceOrientation(idx);
         }
     });
 }
@@ -1749,6 +1752,22 @@ function rotatePieceData(idx) {
     const newShape = rotateMatrix(oldShape);
     p.currentShape = newShape;
     updateVisualsInDrag(idx); // 즉시 렌더링 호출
+}
+
+    // 🆕 조각을 무작위로 회전 및 뒤집는 함수
+function randomizePieceOrientation(idx) {
+    const p = pieces[idx];
+    
+    // 1. 무작위 뒤집기 (50% 확률)
+    if (Math.random() > 0.5) {
+        p.currentShape = p.currentShape.map(row => [...row].reverse());
+    }
+    
+    // 2. 무작위 회전 (0~3번)
+    const rotCount = Math.floor(Math.random() * 4);
+    for (let i = 0; i < rotCount; i++) {
+        p.currentShape = rotateMatrix(p.currentShape);
+    }
 }
 
 function flipPieceData(idx) {
