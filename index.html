@@ -112,14 +112,17 @@ header {
     line-height: 1; /* 줄 간격 타이트하게 */
 }
 
-/* 최고 기록 디자인 (PC: 회색, 아래로 배치) */
+/* BEST 기록 디자인 (PC) */
 #best-record {
-    font-size: 0.8rem;
-    color: #b2bec3; /* 🔘 요청하신 회색 */
-    font-weight: 500;
+    /* 👇 크기 확대 (0.8rem -> 1.0rem) */
+    font-size: 1.0rem; 
+    /* 👇 진한 회색으로 변경 (#b2bec3 -> #636e72) */
+    color: #636e72;    
+    font-weight: 700;  /* 굵게 처리하여 가독성 확보 */
     font-family: 'Oswald', sans-serif;
-    margin-left: 2px; /* 타이머 숫자와 시각적 정렬 */
+    margin-top: -2px;  /* 타이머와 간격 조절 */
 }
+
 
 /* 📱 모바일 전용 스타일 (컨테이너 제거 및 양쪽 정렬) */
 @media (max-width: 700px) {
@@ -155,12 +158,14 @@ header {
     }
 
     #best-record {
-        color: #b2bec3; /* 🔘 회색 */
-        font-size: 0.9rem;
-        border: none; /* 기존 구분선 제거 */
+        /* 👇 모바일에서도 진한 회색 */
+        color: #636e72; 
+        /* 👇 모바일 크기 확대 */
+        font-size: 1.0rem; 
+        border: none;
         padding: 0;
         margin: 0;
-        margin-bottom: 3px; /* 타이머 숫자와 높이 맞추기 */
+        margin-bottom: 5px; /* 타이머 숫자 높이와 시각적 균형 */
     }
 }
         
@@ -1677,7 +1682,7 @@ function checkWinCondition() {
             if (diff < bestTime) {
                 bestTime = diff; // 기록 저장 (ms 단위)
                 document.getElementById('best-record').innerText = `BEST ${recordStr}`; // 화면 갱신
-                msg += `<br><span style="font-size:0.7em; color:#55efc4;">✨ NEW RECORD! ✨</span>`;
+                msg += `<br><span style="font-size:0.7em; color:#ffffff;">✨ NEW RECORD! ✨</span>`;
                 playSound('success'); // (선택사항) 효과음 등
             }
             
